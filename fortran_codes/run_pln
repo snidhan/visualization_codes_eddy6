@@ -1,0 +1,12 @@
+./Pln_new.x << EOF
+'./'
+'./'        # Output Directory with /
+.false.              # Tecplot T/F
+.true.               # Paraview T/F
+$1                   # BaseName
+30100               # Start Step 
+1000000                 # End Step       
+100                  # Stride 
+.true.               # T=Single F=Double
+.true.
+EOF
