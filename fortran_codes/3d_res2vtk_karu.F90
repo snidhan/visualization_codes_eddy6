@@ -3,9 +3,9 @@ Program Main
   
   
   !number of grid points with ghost cells
-  integer ( kind = 4 ), parameter :: nx = 362
+  integer ( kind = 4 ), parameter :: nx = 531
   integer ( kind = 4 ), parameter :: ny = 258
-  integer ( kind = 4 ), parameter :: nz = 514
+  integer ( kind = 4 ), parameter :: nz = 4610
 
   real    ( kind = 8 ) :: xu(nx),yv(ny),zw(nz),zwg(nz)
   real    ( kind = 8 ) :: xc(nx),yc(ny),zc(nz),zcg(nz)
@@ -61,7 +61,7 @@ Program Main
   !call read_restart(filename,nx,ny,nz,u1,time1)
   !filename = '/home/sheel/Work2/projects_data/spheroid_ar6_0aoa/trip_tests/one_eighth_grid_tripping_tests/trip_x_2_intensity_50_re1.5e5_grid_eighth/visualization_files/v_00091000.res'
   !call read_restart(filename,nx,ny,nz,v1,time1)
-  filename = '/home/sheel/Work/projects/spheroid_ar6_0aoa/codes/interpolation_codes/version_2/w_00038500.res' 
+  filename = '/home/sheel/Work2/projects_data/spod_re5e4/fr10/resfiles/w_02490000_r_ex.res' 
   call read_restart(filename,nx,ny,nz,w1,time1)
 
   ! calculate center velocities
@@ -76,7 +76,7 @@ Program Main
   enddo
 
 
- filename='/home/sheel/Work/projects/spheroid_ar6_0aoa/codes/interpolation_codes/version_2/w_00038500.vtk'
+ filename='/home/sheel/Work2/projects_data/spod_re5e4/fr10/resfiles/w_02490000_r_ex.vtk'
   !call write_vtk_4vars(filename,Q,omg_x,omg_y,omg_z,nx,ny,nz,xc,yc,zcg,kstart,kend)
 
 
@@ -117,7 +117,7 @@ subroutine read_grid(xu,yv,zw,zwg,xc,yc,zc,zcg,nx,ny,nz,nzg,ru,rp,tag)
 
   ! ! READ GRID
 
-  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spheroid_ar6_0aoa/codes/interpolation_codes/version_2/x1_grid_half.in',STATUS='OLD',FORM='FORMATTED')
+  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spod_re5e4/grid/fr2/x1_grid.in',STATUS='OLD',FORM='FORMATTED')
   read(1,*) j
   do i= 1, nx-1
      read(1,*) j, xu(i)
@@ -133,7 +133,7 @@ subroutine read_grid(xu,yv,zw,zwg,xc,yc,zc,zcg,nx,ny,nz,nzg,ru,rp,tag)
   enddo
 
 
-  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spheroid_ar6_0aoa/codes/interpolation_codes/version_2/x2_grid_half.in',STATUS='OLD',FORM='FORMATTED')
+  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spod_re5e4/grid/fr2/x2_grid.in',STATUS='OLD',FORM='FORMATTED')
   read(1,*) j
   do i= 1, ny-1
      read(1,*) j, yv(i)
@@ -149,7 +149,7 @@ subroutine read_grid(xu,yv,zw,zwg,xc,yc,zc,zcg,nx,ny,nz,nzg,ru,rp,tag)
   enddo
 
 
-  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spheroid_ar6_0aoa/codes/interpolation_codes/version_2/x3_grid_half.in',STATUS='OLD',FORM='FORMATTED')
+  OPEN(UNIT=1,FILE='/home/sheel/Work/projects/spod_re5e4/grid/fr2/x3_grid.in',STATUS='OLD',FORM='FORMATTED')
   read(1,*) j
   do i= 1, nz-1
      read(1,*) j, zwg(i)

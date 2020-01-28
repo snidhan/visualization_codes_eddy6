@@ -1,23 +1,25 @@
 Program Main
 
   ! ORIGINAL CODE: KARU CHONGSIRIPINYO
+  ! Modified by : Sheel Nidhan
+  ! Date - January 8, 2020
   implicit none
   
-  integer ( kind = 4 ), parameter :: nx = 356 
+  integer ( kind = 4 ), parameter :: nx = 366 
   integer ( kind = 4 ), parameter :: ny = 258
-  integer ( kind = 4 ), parameter :: nz = 898
-  character (len = 160), parameter :: grid_dir = '/home/sheel/Work/projects/spod_re5e4/grid/fr2/'
-  character (len = 160), parameter :: file_dir = '/home/sheel/Work2/projects_data/spod_re5e4/fr10/resfiles/'
+  integer ( kind = 4 ), parameter :: nz = 4610
+  character (len = 160), parameter :: grid_dir = './'
+  character (len = 160), parameter :: file_dir = '/home/sheel/Work2/projects_data/spod_re5e4/frinf/resfiles/filtered_resfiles/'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   integer ( kind = 4 ), parameter :: nx_start = 1
-  integer ( kind = 4 ), parameter :: nx_end =   356
+  integer ( kind = 4 ), parameter :: nx_end =   300
   
   integer ( kind = 4 ), parameter :: ny_start = 1
   integer ( kind = 4 ), parameter :: ny_end =   258
   
   integer ( kind = 4 ), parameter :: nz_start = 1
-  integer ( kind = 4 ), parameter :: nz_end   = 898
+  integer ( kind = 4 ), parameter :: nz_end   = 4610
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   real    ( kind = 8 ) :: xu(nx),yv(ny),zw(nz),zwg(nz)
@@ -27,7 +29,7 @@ Program Main
   integer ( kind = 4 ) :: i,j,k,jp,nstep,imax,jmax,kmax,tmp,kstart,kend,s1
   integer ( kind = 4 ) :: tag
   real    ( kind = 8 ) :: time0,time1,time2,DTM1,grav,Re
-  character(len=128)   :: buff,filename
+  character(len=160)   :: buff,filename,fullfile
 
   real    ( kind = 8 ),allocatable, dimension(:,:,:) :: u0,v0,w0
   real    ( kind = 8 ),allocatable, dimension(:,:,:) :: u1,v1,w1,p1,dens1,baro_ver
@@ -52,43 +54,42 @@ Program Main
   real    ( kind = 8 ) :: r(nx),theta(ny),z(nz),dtheta
 
   integer ( kind = 4 ) :: partition_number
-
   integer ( kind = 4 ) :: partition_length, partition_length_last
   integer ( kind = 4 ),allocatable,dimension(:) :: partition_kstart
   integer ( kind = 4 ),allocatable,dimension(:) :: partition_kend
 
-  kstart = 2               !! Start index of the axial location
-  kend=896                 !! End index of the axial location
+  kstart = 250               !! Start index of the axial location
+  kend = 1000                 !! End index of the axial location
 
   call read_grid(grid_dir,xu,yv,zw,zwg,xc,yc,zc,zcg,nx,ny,nz,nz,ru,rp,tag)
 
   allocate(w1(nx,ny,nz),u1(nx,ny,nz),v1(nx,ny,nz))
 
-  Re = 10000
-  write(filename,'(a,a)') trim(file_dir), 'u_00140000.res'
-  filename = 'u_00140000.res' 
-  call read_restart(filename,nx,ny,nz,u1,time1)
+  filename = 'u_02635000_original_grid_gaussian_filter_sigma_10.res' 
+  write(fullfile,'(a,a)') trim(file_dir), trim(filename)
+  print*, filename
+  call read_restart_filtered(fullfile,nx,ny,nz,u1,time1)
 
-  filename = 'v_00140000.res'
-  write(filename,'(a,a)') trim(file_dir), 'v_00140000.res'
-  call read_restart(filename,nx,ny,nz,v1,time1)
+  filename = 'v_02635000_original_grid_gaussian_filter_sigma_10.res'
+  write(fullfile,'(a,a)') trim(file_dir), trim(filename)
+  call read_restart_filtered(fullfile,nx,ny,nz,v1,time1)
 
-  filename = 'w_00140000.res'
-  write(filename,'(a,a)') trim(file_dir), 'w_00140000.res'
-  call read_restart(filename,nx,ny,nz,w1,time1)
+  filename = 'w_02635000_original_grid_gaussian_filter_sigma_10.res'
+  write(fullfile,'(a,a)') trim(file_dir), trim(filename)
+  call read_restart_filtered(fullfile,nx,ny,nz,w1,time1)
 
   print*, 'Minval and maxval of u ', minval(u1(:,:,:)), maxval(u1(:,:,:))
   print*, 'Minval and maxval of v ', minval(v1(:,:,:)), maxval(v1(:,:,:))
   print*, 'Minval and maxval of w ', minval(w1(:,:,:)), maxval(w1(:,:,:))
 
-
   !--------------------------------------------------------------------!
   
   !call vorticity_mag(u1,v1,w1,omg_mag,nx,ny,nz,xu,zwg,rp,kstart,kend)
-  !call QCri_NEW(u1,v1,w1,Q,nx,ny,nz,xu,zwg,rp,kstart,kend)
+  call QCri_NEW(u1,v1,w1,Q,nx,ny,nz,xu,zwg,rp,kstart,kend)
   !call advection_omg_ver(u1,v1,w1,adv_omg_ver,nx,ny,nz,xu,zwg,rp,yc,kstart,kend)
   
-  call QCri_NEW(u1,v1,w1,Q,nx,ny,nz,xu,zwg,rp,kstart,kend)
+  !call QCri_NEW(u1,v1,w1,Q,nx,ny,nz,xu,zwg,rp,kstart,kend)
+  
   print*, 'Minval and maxval of Q ', minval(Q(:,:,:)), maxval(Q(:,:,:))
   
   partition_number = 1
@@ -127,7 +128,7 @@ Program Main
  
      !filename='/home/sheel/Work/projects/spheroid_ar6_0aoa/post/visualization_files/q_criteria/qcri_00194000.plt'
      !filename='/home/sheel/Work/projects/spheroid_ar6_0aoa/post/visualization_files/q_criteria/qcri_00194000_box2.plt'
-     filename='/home/sheel/Work/projects/spheroid_ar6_0aoa/post/visualization_files/q_criteria/qcri_00140000.vtk'
+     filename='qcri_02635000_original_grid_gaussian_filter_sigma_10_zc_250_1000.vtk'
      write(6,*) "START WRITING filename = ", filename
      call write_vtk(filename,Q,nx,ny,nz,xc,yc,zcg,partition_kstart(i),partition_kend(i))
      !call write_vtk(filename,adv_omg_ver,nx,ny,nz,xc,yc,zcg,partition_kstart(i),partition_kend(i))
@@ -148,9 +149,6 @@ Program Main
 !                    partition_kstart(i),partition_kend(i))
 !  endif
 !
-  :wq:Wq
-:Wq
-
   stop
 end Program Main
 
@@ -244,6 +242,23 @@ subroutine read_restart(filename,nx,ny,nz,var,time)
   
   return
 end subroutine read_restart
+
+subroutine read_restart_filtered(filename,nx,ny,nz,var,time)
+  implicit none
+  
+  character(len=160)   :: filename
+  integer ( kind = 4 ) :: i,j,k,jp,nx,ny,nz,nstep
+  real    ( kind = 8 ) :: var(nx,ny,nz),time,DTM1,grav
+
+  write(6,*) "nx,ny,nz = ", nx,ny,nz
+
+  open(unit=500, file=filename,  status='old', form='unformatted', access='stream', action='read')
+  read(500) var
+  close (500)
+
+  return
+end subroutine read_restart_filtered
+
 
 subroutine ascii_version
 
@@ -1469,7 +1484,7 @@ subroutine write_vtk(filename,var,nx,ny,nz,xc,yc,zcg,kstart,kend)
          convert='big_endian',iostat=s1)
 
   imax = nx
-  jmax = ny-1
+  jmax = ny
   kmax = kend-kstart+1
 
   write(1) "# vtk DataFile Version 3.0"//char(10)
@@ -2144,7 +2159,7 @@ subroutine advection_omg_ver(u,v,w,adv_omg_ver,nx,ny,nz,xu,zwg,rp,yc,kstart,kend
            omgr = dq3x2/rp(i)-dq2x3
            omgt = dq1x3-dq3x1
            omgz = (dq2x1-dq1x2)/rp(i)
-           adv_omg_ver(i,j,k) = omgz
+           adv_omg_ver(i,j,k) = omgz**2 + omgr**2 + omgt**2
 
         enddo
      enddo

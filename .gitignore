@@ -1,0 +1,8 @@
+./coarse_graining/jupyter_notebooks/*.res
+./coarse_graining/fortran_framework/*.res
+./coarse_graining/jupyter_notebooks/*.vtk
+./coarse_graining/fortran_framework/*.vtk
+./fortran_codes/*.vtk
+./fortran_codes/*.res
+./jupyter_notebooks/*.res
+./jupyter_notebooks/*.vtk
